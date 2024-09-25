@@ -39,7 +39,7 @@ def main():
     plot_vacancies_per_level(filtered_data)
     plot_vacancies_per_region(filtered_data)
     plot_salary_distribution(filtered_data)
-    plot_vacancies_trend(filtered_data)
+  
     
     # Шаг 6: Сохранение обработанных данных
     processed_data.to_csv("data/processed_vacancies_data.csv", index=False)
