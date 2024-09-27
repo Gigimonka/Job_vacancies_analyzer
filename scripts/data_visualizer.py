@@ -88,7 +88,7 @@ def display_summary_statistics(stats: Dict[str, any]):
 
 if __name__ == "__main__":
     # Загружаем обработанные данные
-    processed_data = pd.read_csv("../data/processed_vacancies_data.csv", parse_dates=["published_at"])
+    processed_data = pd.read_csv("data/processed_vacancies_data.csv", parse_dates=["published_at"])
     
     # Отображение гистограммы количества вакансий по уровням
     plot_vacancies_per_level(processed_data)

@@ -76,7 +76,7 @@ def filter_by_date(data: pd.DataFrame, start_date: str, end_date: str) -> pd.Dat
 
 if __name__ == "__main__":
     # Загружаем данные из CSV файла
-    df = load_data("../data/vacancies_data.csv")
+    df = load_data("data/vacancies_data.csv")
     
     # Предварительная обработка данных
     processed_data = preprocess_data(df)
@@ -90,5 +90,5 @@ if __name__ == "__main__":
     print(stats)
     
     # Сохраняем обработанные данные в новый файл
-    filtered_data.to_csv("../data/processed_vacancies_data.csv", index=False)
+    filtered_data.to_csv("data/processed_vacancies_data.csv", index=False)
     print("Обработанные данные сохранены в файл processed_vacancies_data.csv")

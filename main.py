@@ -26,7 +26,14 @@ def main():
     
     # Шаг 3: Фильтрация данных по дате публикации (например, за 2023 год)
     print("Фильтрация данных по дате публикации...")
-    filtered_data = filter_by_date(processed_data, "2023-01-01", "2024-09-25")
+
+    print("Введените стартовую дату для поиска в формате YYYY-MM-DD: ", end="")
+    start_data = input()
+
+    print("Введените конечную дату для поиска в формате YYYY-MM-DD: ", end="")
+    end_data = input()
+
+    filtered_data = filter_by_date(processed_data, start_data, end_data)
     print(f"Отфильтровано {len(filtered_data)} вакансий.")
     
     # Шаг 4: Вычисление сводных статистик
@@ -42,7 +49,7 @@ def main():
   
     
     # Шаг 6: Сохранение обработанных данных
-    processed_data.to_csv("data/processed_vacancies_data.csv", index=False)
+    filtered_data.to_csv("data/processed_vacancies_data.csv", index=False)
     print("Обработанные данные сохранены в файл data/processed_vacancies_data.csv.")
 
 if __name__ == "__main__":
