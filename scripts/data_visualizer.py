@@ -51,27 +51,6 @@ def plot_salary_distribution(data: pd.DataFrame):
     plt.show()
 
 
-def plot_vacancies_trend(data: pd.DataFrame):
-    """
-    Строит график изменения количества вакансий по месяцам.
-
-    :param data: DataFrame с данными о вакансиях
-    """
-    # Добавляем столбец с месяцами для группировки
-    data["month"] = data["published_at"].dt.to_period("M")
-    
-    # Группируем данные по месяцам и считаем количество вакансий
-    vacancies_per_month = data.groupby("month").size().reset_index(name="vacancy_count")
-    
-    plt.figure(figsize=(12, 6))
-    sns.lineplot(x="month", y="vacancy_count", data=vacancies_per_month, marker="o", color="b")
-    plt.title("Тренд количества вакансий по месяцам")
-    plt.xlabel("Месяц")
-    plt.ylabel("Количество вакансий")
-    plt.xticks(rotation=45)
-    plt.show()
-
-
 def display_summary_statistics(stats: Dict[str, any]):
     """
     Выводит сводные статистики по вакансиям в текстовом формате.
@@ -98,9 +77,6 @@ if __name__ == "__main__":
     
     # Отображение распределения зарплат по уровням
     plot_salary_distribution(processed_data)
-    
-    # Отображение тренда изменения количества вакансий по месяцам
-    plot_vacancies_trend(processed_data)
     
     # Отображение сводных статистик
     stats = {
