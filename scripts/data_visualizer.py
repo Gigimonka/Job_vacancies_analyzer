@@ -1,5 +1,3 @@
-# scripts/data_visualizer.py
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -15,10 +13,14 @@ def plot_vacancies_per_level(data: pd.DataFrame):
     :param data: DataFrame с данными о вакансиях
     """
     plt.figure(figsize=(10, 6))
-    sns.countplot(x="level", data=data, palette="viridis")
+    ax = sns.countplot(x="level", data=data, palette="viridis")
     plt.title("Количество вакансий по уровням квалификации")
     plt.xlabel("Уровень квалификации")
     plt.ylabel("Количество вакансий")
+    for p in ax.patches:
+        ax.annotate(f'{p.get_height()}', (p.get_x() + p.get_width() / 2., p.get_height()), 
+                    ha='center', va='baseline', fontsize=12, color='black', xytext=(0, 5), 
+                    textcoords='offset points')
     plt.show()
 
 
@@ -29,26 +31,60 @@ def plot_vacancies_per_region(data: pd.DataFrame):
     :param data: DataFrame с данными о вакансиях
     """
     plt.figure(figsize=(10, 6))
-    sns.countplot(x="region", data=data, palette="plasma")
+    ax = sns.countplot(x="region", data=data, palette="plasma")
     plt.title("Количество вакансий по регионам")
     plt.xlabel("Регион")
     plt.ylabel("Количество вакансий")
+    for p in ax.patches:
+        ax.annotate(f'{p.get_height()}', (p.get_x() + p.get_width() / 2., p.get_height()), 
+                    ha='center', va='baseline', fontsize=12, color='black', xytext=(0, 5), 
+                    textcoords='offset points')
     plt.show()
 
 
-def plot_salary_distribution(data: pd.DataFrame):
+def plot_vacancies_per_level_region(data: pd.DataFrame):
     """
-    Строит распределение зарплат по направлениям.
+    Строит график количества вакансий по уровням квалификации в разрезе регионов.
 
     :param data: DataFrame с данными о вакансиях
     """
     plt.figure(figsize=(10, 6))
-    sns.histplot(data, x="salary_from", hue="level", element="step", stat="density", common_norm=False, palette="coolwarm")
-    plt.title("Распределение зарплат по уровням квалификации")
-    plt.xlabel("Зарплата (от)")
-    plt.ylabel("Плотность")
-    plt.xlim(0, data["salary_from"].max())
+    ax = sns.countplot(x="region", hue="level", data=data, palette="viridis")
+    plt.title("Количество вакансий по уровням квалификации в разрезе регионов")
+    plt.xlabel("Регион")
+    plt.ylabel("Количество вакансий")
+    plt.legend(title="Уровень квалификации")
+    for p in ax.patches:
+        ax.annotate(f'{p.get_height()}', (p.get_x() + p.get_width() / 2., p.get_height()), 
+                    ha='center', va='baseline', fontsize=12, color='black', xytext=(0, 5), 
+                    textcoords='offset points')
     plt.show()
+
+def plot_average_salary_by_region_and_level(data: pd.DataFrame):
+    """
+    Строит график средней зарплаты по регионам и уровням квалификации.
+    Исключает вакансии, где зарплата не указана (salary_from и salary_to равны 0).
+
+    :param data: DataFrame с данными о вакансиях
+    """
+    # Отфильтруем записи, где указана хотя бы одна зарплата (salary_from или salary_to больше 0)
+    filtered_data = data[(data['salary_from'] > 0) | (data['salary_to'] > 0)]
+    
+    # Рассчитаем среднюю зарплату только для тех вакансий, где она указана
+    filtered_data['average_salary'] = filtered_data[['salary_from', 'salary_to']].mean(axis=1)
+
+    plt.figure(figsize=(10, 6))
+    ax = sns.barplot(x="region", y="average_salary", hue="level", data=filtered_data, palette="magma")
+    plt.title("Средняя зарплата по регионам и уровням квалификации")
+    plt.xlabel("Регион")
+    plt.ylabel("Средняя зарплата")
+    plt.legend(title="Уровень квалификации")
+    for p in ax.patches:
+        ax.annotate(f'{p.get_height():.2f}', (p.get_x() + p.get_width() / 2., p.get_height()), 
+                    ha='center', va='baseline', fontsize=12, color='black', xytext=(0, 5), 
+                    textcoords='offset points')
+    plt.show()
+
 
 
 def display_summary_statistics(stats: Dict[str, any]):
@@ -69,21 +105,27 @@ if __name__ == "__main__":
     # Загружаем обработанные данные
     processed_data = pd.read_csv("data/processed_vacancies_data.csv", parse_dates=["published_at"])
     
+    # Рассчитываем среднюю зарплату для каждого уровня и региона
+    processed_data['average_salary'] = processed_data[['salary_from', 'salary_to']].mean(axis=1)
+    
     # Отображение гистограммы количества вакансий по уровням
     plot_vacancies_per_level(processed_data)
+    
+    # Отображение графика количества вакансий по уровням в разрезе регионов
+    plot_vacancies_per_level_region(processed_data)
     
     # Отображение гистограммы количества вакансий по регионам
     plot_vacancies_per_region(processed_data)
     
-    # Отображение распределения зарплат по уровням
-    plot_salary_distribution(processed_data)
+    # Отображение средней зарплаты по регионам и уровням
+    plot_average_salary_by_region_and_level(processed_data)
     
     # Отображение сводных статистик
     stats = {
         "total_vacancies": len(processed_data),
         "vacancies_per_level": processed_data["level"].value_counts().to_dict(),
         "vacancies_per_region": processed_data["region"].value_counts().to_dict(),
-        "average_salary_from": processed_data["salary_from"].mean(),
-        "average_salary_to": processed_data["salary_to"].mean(),
+        "average_salary_from": processed_data[processed_data["salary_from"] > 0]["salary_from"].mean(),
+        "average_salary_to": processed_data[processed_data["salary_to"] > 0]["salary_to"].mean(),
     }
     display_summary_statistics(stats)
